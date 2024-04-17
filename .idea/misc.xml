@@ -18,6 +18,9 @@
     </option>
   </component>
   <component name="ExternalStorageConfigurationManager" enabled="true" />
+  <component name="JavaccProjectSettings">
+    <option name="injectionSupportLevel" value="FULL" />
+  </component>
   <component name="MavenProjectsManager">
     <option name="originalFiles">
       <list>

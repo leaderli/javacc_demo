@@ -1,0 +1,68 @@
+options {
+    STATIC = false;
+}
+PARSER_BEGIN(DemoParser)
+package io.leaderli.c1;
+public class DemoParser{
+    public static void main(String[] args) throws Exception {
+      DemoParser demo = new DemoParser(System.in);
+      demo.Start();
+    }
+ }
+PARSER_END(DemoParser)
+SKIP : {" "}
+TOKEN : {
+    <EOL: "\r"|"\n"|"\r\n">|
+    <PLUS: "+"> |
+    <MINUS: "-"> |
+    <TIMES: "*"> |
+    <DIVIDE: "/"> |
+    <OPEN_PAR: "("> |
+    <CLOSE_PAR: ")"> |
+    <NUMBER: <DIGITS>|<DIGITS>"."<DIGITS>> |
+    <#DIGITS: (["0"-"9"])+>
+}
+
+void Start() :{double value;}{
+   (
+    value = expr()
+    <EOL>{System.out.println(value);}
+   )*
+   <EOF>
+}
+double expr() throws NumberFormatException:{double i;double value;}
+{
+    value = term()
+    (
+        <PLUS>{value +=  term();}
+       |
+        <MINUS>{value -=term();}
+    )*
+    {return value;}
+
+}
+
+double term() throws NumberFormatException:{double i;double value;}
+{
+    value = primary()
+    (
+        <TIMES>
+        i = primary(){value *= i;}
+        |
+        <DIVIDE>
+        i = primary(){value /= i;}
+    )*
+    {return value;}
+
+}
+
+
+
+double primary() throws NumberFormatException:{Token t;double d;}
+{
+    t = <NUMBER> { return Double.parseDouble(t.image); }
+|
+    <OPEN_PAR>d = expr() <CLOSE_PAR>  { return d; }
+|
+    <MINUS> d=primary() { return -d; }
+}
