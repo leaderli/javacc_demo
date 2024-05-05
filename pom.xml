@@ -12,13 +12,14 @@
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <jjtree>true</jjtree>
     </properties>
     <dependencies>
         <dependency>
             <groupId>net.java.dev.javacc</groupId>
             <artifactId>javacc</artifactId>
             <version>7.0.13</version>
-<!--            <scope>provided</scope>-->
+            <!--            <scope>provided</scope>-->
         </dependency>
     </dependencies>
     <build>
@@ -40,7 +41,7 @@
                                     <directory>src/main/java</directory>
                                     <excludes>
                                         <exclude>
-                                        io/leaderli/c1/SimpleNode.java
+                                            io/leaderli/c1/SimpleNode.java
                                         </exclude>
                                     </excludes>
                                 </fileset>
@@ -49,25 +50,90 @@
                     </execution>
                 </executions>
             </plugin>
+
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>javacc-maven-plugin</artifactId>
-                <version>3.1.0</version>
+                <groupId>net.revelc.code.formatter</groupId>
+                <artifactId>formatter-maven-plugin</artifactId>
+                <version>2.11.0</version>
                 <executions>
                     <execution>
-                        <id>jjtree</id>
                         <goals>
-                            <goal>jjtree-javacc</goal>
+                            <goal>format</goal>
                         </goals>
                         <configuration>
-                            <includes>*.jjt</includes>
-                            <sourceDirectory>src/main/resources</sourceDirectory>
-                            <interimDirectory>src/main/java</interimDirectory>
-                            <outputDirectory>src/main/java</outputDirectory>
+                            <includes>
+                                <include>io/leaderli/c1</include>
+                            </includes>
                         </configuration>
                     </execution>
+
                 </executions>
             </plugin>
         </plugins>
     </build>
+    <profiles>
+        <profile>
+            <id>javacc</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>javacc-maven-plugin</artifactId>
+                        <version>3.1.0</version>
+                        <executions>
+                            <execution>
+                                <id>javacc</id>
+                                <goals>
+                                    <goal>javacc</goal>
+                                </goals>
+                                <configuration>
+                                    <includes>
+                                        <include>*.jj</include>
+                                    </includes>
+                                    <sourceDirectory>src/main/resources</sourceDirectory>
+                                    <!--                                    <packageName>io.leaderli.c1</packageName>-->
+                                    <outputDirectory>src/main/java</outputDirectory>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>jjtree</id>
+            <activation>
+                <property>
+                    <name>jjtree</name>
+                    <value>true</value>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>javacc-maven-plugin</artifactId>
+                        <version>3.1.0</version>
+                        <executions>
+                            <execution>
+                                <id>jjtree</id>
+                                <goals>
+                                    <goal>jjtree-javacc</goal>
+                                </goals>
+                                <configuration>
+                                    <includes>*.jjt</includes>
+                                    <sourceDirectory>src/main/resources</sourceDirectory>
+                                    <interimDirectory>src/main/java</interimDirectory>
+                                    <outputDirectory>src/main/java</outputDirectory>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

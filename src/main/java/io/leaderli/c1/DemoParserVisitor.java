@@ -2,14 +2,14 @@
 package io.leaderli.c1;
 
 public interface DemoParserVisitor {
-    Integer visit(ASTStart node, Integer data);
+    public void visit(SimpleNode node, StringBuilder data);
 
-    Integer visit(ASTexpr node, Integer data);
+    public void visit(ASTStart node, StringBuilder data);
 
-    Integer visit(ASTterm node, Integer data);
+    public void visit(ASTwav node, StringBuilder data);
 
-    Integer visit(ASTprimary node, Integer data);
+    public void visit(ASTtts node, StringBuilder data);
 
-    Integer visit(ASTneg node, Integer data);
+    public void visit(AST_break node, StringBuilder data);
 }
-/* JavaCC - OriginalChecksum=8dcba9cdbed4dc25e44237bdb6ec287d (do not edit this line) */
+/* JavaCC - OriginalChecksum=4995393991de08fd59879bb4a3222985 (do not edit this line) */

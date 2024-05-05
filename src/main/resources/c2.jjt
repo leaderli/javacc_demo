@@ -2,67 +2,76 @@ options {
   STATIC = false;
   MULTI=true;
   VISITOR=true;
-  VISITOR_DATA_TYPE="Integer";
-  VISITOR_RETURN_TYPE="Integer";
+  VISITOR_DATA_TYPE="StringBuilder";
+  VISITOR_RETURN_TYPE="void";
 }
-
 PARSER_BEGIN(DemoParser)
 package io.leaderli.c1;
 import java.io.StringReader;
-public class DemoParser {
-
+public class DemoParser{
     public static void main(String[] args) throws Exception {
-          String input = "1+3*4-12/2";
-          System.out.println(input);
-          DemoParser parser = new DemoParser(new StringReader(input));
-          SimpleNode start = parser.Start();
-          start.dump("");
-          System.out.println(start.jjtAccept(new DemoParserDefaultVisitor(), null));
-
-          input = "-(1+3)*4-12/2";
-          parser = new DemoParser(new StringReader(input));
-          start = parser.Start();
-          start.dump("");
-          System.out.println(start.jjtAccept(new DemoParserDefaultVisitor(), null));
+      DemoParser demo = new DemoParser(new StringReader("aa"));
+      SimpleNode node = demo.Start();
+      node.dump(" ");
+      demo = new DemoParser(new StringReader("aa#"));
+      node = demo.Start();
+      node.dump(" ");
+      demo = new DemoParser(new StringReader("aa##wav:12345##1111#11##wav:22345####break##bb"));
+      node = demo.Start();
+      node.dump(" ");
+      DemoParserDefaultVisitor demoParserDefaultVisitor = new DemoParserDefaultVisitor();
+      StringBuilder sb = new StringBuilder();
+      demoParserDefaultVisitor.visit(node, sb);
+      System.out.println(sb);
     }
-}
-PARSER_END  (DemoParser)
-SKIP : {" "}
+ }
+PARSER_END(DemoParser)
+
+<DEFAULT>
 TOKEN : {
-    <EOL: "\r"|"\n"|"\r\n">|
-    <PLUS: "+"> |
-    <MINUS: "-"> |
-    <TIMES: "*"> |
-    <DIVIDE: "/"> |
-    <OPEN_PAR: "("> |
-    <CLOSE_PAR: ")"> |
-    <NUMBER: <DIGITS>|<DIGITS>"."<DIGITS>> |
-    <#DIGITS: (["0"-"9"])+>
+    <D_TTS: (~["#"])+>|
+    <D_TAG: "#">:TAG_BEGIN
+}
+<TAG_BEGIN>
+TOKEN : {
+    <B_TTS: (~["#"])+>:DEFAULT|
+    <B_TAG: "#">:TAG_STATE
 }
 
-SimpleNode Start() :{}
-{
-    expr()<EOF>
-    {
+<TAG_STATE>
+TOKEN : {
+    <WAV: "wav"> |
+    <BREAK: "break"> |
+    <COMMA: ":"> |
+    <DIGITS: (["0"-"9"])+>|
+    <T_TAG: "##"> :DEFAULT
+}
+
+SimpleNode Start() :{}{
+    (tts()) +<EOF>{
         return jjtThis;
     }
 }
-
-void expr() #expr(>1) :{Token t; }
-{
-   term() ( (t=<PLUS>|t=<MINUS>){jjtThis.jjtSetValue(t.image);} expr()) ?
+void wav():{Token t;}{
+    <WAV>
+    <COMMA>
+    t=<DIGITS>{jjtThis.jjtSetValue(t.image);}
 }
-void term() #term(>1) :{Token t; }
-{
-   primary() ( (t=<TIMES> |t=<DIVIDE> ){jjtThis.jjtSetValue(t.image);} term()) ?
-
+void tts() #void:{Token t;}{
+    t= <D_TTS>{jjtThis.jjtSetValue(t.image);}#tts
+    |
+    <D_TAG>[t=<B_TTS>{jjtThis.jjtSetValue("#"+t.image);return;}#tts|tag(){return ;}]
+    {
+       jjtThis.jjtSetValue("#");
+    }#tts
 }
 
-void primary() #void :{ Token t; }
-{
-  t=<NUMBER>{ jjtThis.jjtSetValue(Integer.parseInt(t.image)); }#primary
-|
-  <OPEN_PAR>expr() <CLOSE_PAR>
-|
-  <MINUS> primary() #neg
+void  _break():{}{
+    <BREAK>
+}
+
+void  tag()#void:{Token t;}{
+     <B_TAG>
+     (wav()|_break())
+     <T_TAG>
 }

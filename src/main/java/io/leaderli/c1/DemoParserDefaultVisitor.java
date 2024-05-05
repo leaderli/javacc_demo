@@ -2,40 +2,33 @@
 package io.leaderli.c1;
 
 public class DemoParserDefaultVisitor implements DemoParserVisitor {
-
-
-    public Integer visit(ASTStart node, Integer data) {
-        return node.children[0].jjtAccept(this, null);
+    public void defaultVisit(SimpleNode node, StringBuilder data) {
+        node.childrenAccept(this, data);
+        return;
     }
 
-    public Integer visit(ASTexpr node, Integer data) {
-        Integer left = node.children[0].jjtAccept(this, null);
-        Integer right = node.children[1].jjtAccept(this, null);
-        String op = (String) node.jjtGetValue();
-        if ("+".equals(op)) {
-            return left + right;
-        } else {
-            return left - right;
-        }
+    public void visit(SimpleNode node, StringBuilder data) {
+        defaultVisit(node, data);
     }
 
-    public Integer visit(ASTterm node, Integer data) {
-        Integer left = node.children[0].jjtAccept(this, null);
-        Integer right = node.children[1].jjtAccept(this, null);
-        String op = (String) node.jjtGetValue();
-        if ("*".equals(op)) {
-            return left * right;
-        } else {
-            return left / right;
-        }
+    public void visit(ASTStart node, StringBuilder data) {
+        defaultVisit(node, data);
     }
 
-    public Integer visit(ASTprimary node, Integer data) {
-        return (Integer) node.jjtGetValue();
+    public void visit(ASTwav node, StringBuilder data) {
+        data
+                .append("\r\n")
+                .append("wav:")
+                .append(node.jjtGetValue())
+                .append("\r\n");
     }
 
-    public Integer visit(ASTneg node, Integer data) {
-        return -node.children[0].jjtAccept(this, null);
+    public void visit(ASTtts node, StringBuilder data) {
+        data.append(node.jjtGetValue());
+    }
+
+    public void visit(AST_break node, StringBuilder data) {
+        data.append("\r\n");
     }
 }
-/* JavaCC - OriginalChecksum=6f22a91cfe32cba788061e89705c44cc (do not edit this line) */
+/* JavaCC - OriginalChecksum=f216e75ab743c5891ada21645cc01482 (do not edit this line) */
